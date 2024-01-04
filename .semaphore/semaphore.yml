@@ -14,6 +14,19 @@ blocks:
         - name: Build
           commands:
             - checkout
+      env_vars:
+        - name: FOO_1
+          value: BAR_1
+      epilogue:
+        always:
+          commands:
+            - on_pass
+        on_pass:
+          commands:
+            - always
+        on_fail:
+          commands:
+            - on_fail
   - name: Build for iOS
     dependencies: []
     task:
