@@ -1,100 +1,36 @@
 version: v1.0
-name: Multi-platform pipeline
+name: Java
 agent:
   machine:
     type: e1-standard-2
     os_image: ubuntu2004
 blocks:
-  - name: Build for Android
-    dependencies:
-      - Build for Web
-      - Test on Web
+  - name: Ant
     task:
       jobs:
-        - name: Build
+        - name: Build & Test
           commands:
             - checkout
-      env_vars:
-        - name: FOO_1
-          value: BAR_1
+            - sem-version java 1.8
+            - sudo apt-get install -y ant
+            - ant -noinput -buildfile build.xml
+            - ant test
+  - name: 'Block #2'
+    task:
+      prologue:
+        commands:
+          - 'Always '
       epilogue:
         always:
           commands:
-            - on_pass
+            - On_fail
         on_pass:
           commands:
-            - always
+            - 'Always '
         on_fail:
           commands:
-            - on_fail
-  - name: Build for iOS
-    dependencies: []
-    task:
-      agent:
-        machine:
-          type: a1-standard-4
-          os_image: macos-xcode12
+            - 'Always '
       jobs:
-        - name: Build
+        - name: 'Job #1'
           commands:
-            - checkout
-  - name: Build for Web
-    dependencies: []
-    task:
-      jobs:
-        - name: Build
-          commands:
-            - checkout
-  - name: Test on Android
-    dependencies:
-      - Build for Android
-    task:
-      jobs:
-        - name: Tests 1/2
-          commands:
-            - checkout
-        - name: Tests 2/2
-          commands:
-            - checkout
-  - name: Test on iOS
-    dependencies:
-      - Build for iOS
-    task:
-      agent:
-        machine:
-          type: a1-standard-4
-          os_image: macos-xcode12
-      jobs:
-        - name: Tests
-          commands:
-            - checkout
-  - name: Test on Web
-    dependencies:
-      - Build for Web
-    task:
-      jobs:
-        - name: Tests 1/3
-          commands:
-            - checkout
-        - name: Tests 2/3
-          commands:
-            - checkout
-        - name: Tests 3/3
-          commands:
-            - checkout
-  - name: Release
-    dependencies:
-      - Test on Android
-      - Test on iOS
-      - Test on Web
-    task:
-      jobs:
-        - name: "\U0001F680 Google Play"
-          commands:
-            - checkout
-        - name: "\U0001F680 AppStore"
-          commands:
-            - checkout
-        - name: "\U0001F680 Web"
-          commands:
-            - checkout
+            - npm install
